@@ -120,14 +120,12 @@ public class Assignment2
 
             Path filePath = Paths.get(args[0]);
             byte[] fileToSign = Files.readAllBytes(filePath);
-
             BigInteger[] signature = generateSignature(fileToSign, secretKey);
             BigInteger signaturePartR = signature[0];
             BigInteger signaturePartS = signature[1];
 
             writeContentToFile("r.txt", signaturePartR.toString(16));
             writeContentToFile("s.txt", signaturePartS.toString(16));
-
             System.out.println("Successfully signed file; Signature components written to files.");
         }
         catch (Exception e)
