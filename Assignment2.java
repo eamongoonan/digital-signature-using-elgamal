@@ -44,11 +44,9 @@ public class Assignment2
         {
             BigInteger quotient = number.divide(modulo);
             BigInteger temp = modulo;
-
             modulo = number.mod(modulo);
             number = temp;
             temp = inverse;
-
             inverse = identity.subtract(quotient.multiply(inverse));
             identity = temp;
         }
@@ -84,10 +82,10 @@ public class Assignment2
                 do
                 {
                     randomValue = new BigInteger(PRIME_MODULUS.bitLength() - 1, new SecureRandom());
-                } while (!(calculateGCD(randomValue, PRIME_MODULUS.subtract(BigInteger.ONE)).equals(BigInteger.ONE)));
+                }
+                while (!(calculateGCD(randomValue, PRIME_MODULUS.subtract(BigInteger.ONE)).equals(BigInteger.ONE)));
 
                 signatureR = GENERATOR.modPow(randomValue, PRIME_MODULUS);
-
                 signatureS = findModInverse(randomValue, PRIME_MODULUS.subtract(BigInteger.ONE))
                         .multiply(hashValue.subtract(privateKey.multiply(signatureR)))
                         .mod(PRIME_MODULUS.subtract(BigInteger.ONE));
@@ -98,7 +96,7 @@ public class Assignment2
         }
         catch (NoSuchAlgorithmException e)
         {
-            throw new RuntimeException("Error computing SHA-256 hash", e);
+            throw new RuntimeException("Error encountered computing SHA-256 hash", e);
         }
     }
 
@@ -122,7 +120,7 @@ public class Assignment2
     {
         if (args.length < 1)
         {
-            System.err.println("Usage: java ElGamalDigitalSignature <file_to_sign.java>");
+            System.err.println("Usage: java Assignment2 <filename_to_sign.java>");
             System.exit(1);
         }
 
@@ -149,15 +147,11 @@ public class Assignment2
             writeContentToFile("r.txt", signaturePartR.toString(16));
             writeContentToFile("s.txt", signaturePartS.toString(16));
 
-            System.out.println("File signed successfully. Signature components written to files.");
-        }
-        catch (IOException e)
-        {
-            System.err.println("File operation error: " + e.getMessage());
+            System.out.println("Successfully signed file; Signature components written to files.");
         }
         catch (Exception e)
         {
-            System.err.println("Signature generation error: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
         }
     }
 }
