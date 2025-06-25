@@ -1,76 +1,124 @@
-CA4005 Cryptography and Security Protocols
-Assignment 2: Digital Signature Using ElGamal
+📌 Overview
 
-The aim of this assignment is to implement a digital signature using the ElGamal signature scheme.
+    The message is signed using the ElGamal digital signature scheme over a 1024-bit prime modulus.
 
-The prime modulus p is the following 1024-bit prime (given in hexadecimal):
+    Hashing is performed with SHA-256.
 
-b59dd795 68817b4b 9f678982 2d22594f 376e6a9a bc024184 6de426e5 dd8f6edd
-ef00b465 f38f509b 2b183510 64704fe7 5f012fa3 46c5e2c4 42d7c99e ac79b2bc
-8a202c98 327b9681 6cb80426 98ed3734 643c4c05 164e739c b72fba24 f6156b6f
-47a7300e f778c378 ea301e11 41a6b25d 48f19242 68c62ee8 dd313474 5cdf7323
+    The signature is generated using:
 
-The generator g is the following (again in hexadecimal):
+        A manually implemented Extended Euclidean Algorithm to calculate modular inverses
 
-44ec9d52 c8f9189e 49cd7c70 253c2eb3 154dd4f0 8467a64a 0267c9de fe4119f2
-e373388c fa350a4e 66e432d6 38ccdc58 eb703e31 d4c84e50 398f9f91 677e8864
-1a2d2f61 57e2f4ec 538088dc f5940b05 3c622e53 bab0b4e8 4b1465f5 738f5496
-64bd7430 961d3e5a 2e7bceb6 2418db74 7386a58f f267a993 9833beef b7a6fd68
+        Random nonce generation with validity checks
 
-Before the digital signature can be implemented, you will need to set up an appropriate public/private ElGamal key pair as follows:
+    The ElGamal key pair and signature values are saved in hex format.
 
-    Generate a random secret key x with 0 < x < p-1
-    Compute the public key y as y = gx (mod p)
+🧠 How It Works
+🔐 Key Generation
 
-To sign a message m you will need to do the following:
+    Prime modulus p and generator g are predefined (1024-bit values).
 
-    Choose a random value k with 1 < k < p-1 and gcd(k,p-1) = 1
-    Compute r as r = gk (mod p)
-    Compute s as s = (H(m)-xr)k-1 (mod p-1) where H is the hash function SHA-256. This should use your own implementation of the extended Euclidean GCD algorithm to calculate the inverse rather than using a library method for this purpose.
-    If s=0 start over again
-    The pair (r||s) is the digital signature of m
+    Generate private key x where:
+    1 < x < p−1
 
-Once your implementation is complete, you should digitally sign the class file for your program as described above and create a zip file called Assignment2.zip that contains the following files:
+    Compute public key y as:
+    y = g^x mod p
 
-    y.txt: your public key y in hexadecimal.
-    Assignment2.java - your program code file.
-    Assignment2.class - the result of compiling the above code file, which was digitally signed.
-    r.txt - the digital signature value r in hexadecimal.
-    s.txt - the digital signature value s in hexadecimal.
-    A declaration that this is solely your own work (except elements that are explicitly attributed to another source).
+✍️ Message Signing
 
-The implementation language must be Java. You can make use of the BigInteger class (java.math.BigInteger), the security libraries (java.security.*) and the crypto libraries (javax.crypto.*). You must not make use of the multiplicative inverse or GCD methods provided by the BigInteger class; you will need to implement these yourself. You can however make use of the crypto libraries to perform the SHA-256 hashing.
+To sign a binary message m (in this case, the compiled .class file):
 
-When I receive your submission on Loop I will verify your digital signature as follows (you should also verify your digital signature in the same way):
+    Choose random k where:
+    1 < k < p−1 and gcd(k, p−1) = 1
 
-    I will check that 0 < r < p and 0 < s < p-1
-    I will generate the 256-bit digest H(m) of your submitted class file m
-    I will verify that gH(m) (mod p) = yrrs (mod p)
+    Compute r = g^k mod p
 
-This assignment is due 10am on Monday 27th November. Submissions without the declaration will not be assessed. This assignment carries 15 marks and late submissions will have 1.5 marks deducted for each 24 hours the assignment is overdue.
+    Compute SHA-256 hash of message:
+    H(m)
 
-1. Not calculating y correctly - this should be a value in the range 1 to p-1 since it is calculated mod p. The value x used in calculating y must be in the range 1 to p-2.
+    Compute signature component s as:
+    s = (H(m) - x·r)·k⁻¹ mod (p−1)
 
-2. Not calculating r correctly - this should be a value in the range 1 to p-1 since it is calculated mod p. The value k used in calculating y must be in the range 2 to p-2.
+        k⁻¹ is computed using your own implementation of the Extended Euclidean Algorithm.
 
-3. Not calculating the value s correctly - this should be a value in the range 1 to p-2 since it is calculated mod (p-1). It should be calculated as follows:
+    If s = 0, retry with a new k.
 
-   a. Calculate (H(m)-xr) (mod p-1)
+    The digital signature is the pair (r, s).
 
-   b. Calculate k-1 (mod p-1)
+📂 Project Output
 
-   c. Multiply a and b together (mod p-1)
+After running the signing process, the following files are generated:
 
-4. Not generating k correctly - this must be relatively prime to p-1. If this is not the case, then the subsequent evaluation of the multiplicative inverse of k (mod p-1) will be erroneous.
+    y.txt – Public key y in hexadecimal
 
-5. Extended Euclidean GCD algorithm not implemented correctly.
+    r.txt – Signature value r in hexadecimal
 
-6. Using a byte array for the code file which is too large (this will be filled up with additional zeroes and give an incorrect digest value).
+    s.txt – Signature value s in hexadecimal
 
-7. Converting BigInteger values to an array of bytes incorrectly - note that the BigInteger method toByteArray() uses a twos complement representation and may add an extra leading zero-valued byte if the first bit is set. 
+    Assignment2.java – Java source code
 
-8. Hashing is performed on character values in string representation of input file rather than the actual byte values.
+    Assignment2.class – Compiled code file (used as the message)
 
-9. Giving decimal values rather than hexadecimal.
+    Declaration.txt – Statement of academic integrity
 
-10. Giving negative hex values.
+🧪 Signature Verification
+
+To verify the signature of m (performed manually or by instructor):
+
+    Check 0 < r < p and 0 < s < p−1
+
+    Compute hash of the message:
+    H(m) = SHA-256(m)
+
+    Verify the equation:
+    g^H(m) mod p == y^r · r^s mod p
+
+🛠 Tech Details
+
+    Language: Java
+
+    Cryptographic libraries used:
+
+        java.math.BigInteger
+
+        java.security.MessageDigest (SHA-256)
+
+    Manual implementation of:
+
+        Extended Euclidean Algorithm for modular inverse
+
+        ElGamal signing process
+
+    All outputs are in hexadecimal, no whitespace.
+
+🔒 Parameters
+Prime modulus p (1024 bits):
+
+b59dd79568817b4b9f6789822d22594f376e6a9abc0241846de426e5dd8f6edd
+ef00b465f38f509b2b18351064704fe75f012fa346c5e2c442d7c99eac79b2bc
+8a202c98327b96816cb8042698ed3734643c4c05164e739cb72fba24f6156b6f
+47a7300ef778c378ea301e1141a6b25d48f1924268c62ee8dd3134745cdf7323
+
+Generator g:
+
+44ec9d52c8f9189e49cd7c70253c2eb3154dd4f08467a64a0267c9defe4119f2
+e373388cfa350a4e66e432d638ccdc58eb703e31d4c84e50398f9f91677e8864
+1a2d2f6157e2f4ec538088dcf5940b053c622e53bab0b4e84b1465f5738f5496
+64bd7430961d3e5a2e7bceb62418db747386a58ff267a9939833beefb7a6fd68
+
+⚠️ Common Mistakes Avoided
+
+This implementation handles or mitigates the following common pitfalls:
+
+    Incorrect domain/range for x, k, r, or s
+
+    Failing to ensure gcd(k, p-1) == 1
+
+    Incorrect calculation of s (modular inverse + multiplication)
+
+    Use of unsupported BigInteger methods for GCD/inverse
+
+    Incorrect SHA-256 hashing (should use raw byte content of .class file)
+
+    Misuse of BigInteger.toByteArray() (twos-complement issues)
+
+    Output in decimal or negative hex
